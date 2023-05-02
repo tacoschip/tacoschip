@@ -1,0 +1,309 @@
+; cddb = old palette ptrs
+
+%org($07, $cddb)
+
+.kahn_throne_palette:
+	db $15, $25, $34
+	db $00, $10, $20
+	db $00, $26, $34
+
+
+.living_forest_palette:
+	db $08, $18, $0e		; dupe
+	db $1a, $2a, $18
+	db $08, $18, $28
+
+
+.kombat_tomb_palette:
+	db $06, $16, $26
+	db $17, $27, $37
+	db $07, $17, $27
+
+
+.portal_palette:
+	db $00, $10, $06
+	db $00, $10, $20
+	db $06, $16, $26
+
+
+.tower_palette:
+	db $00, $10, $04
+	db $1c, $10, $20
+	db $00, $10, $20
+
+
+.pit_mk2_palette:
+	db $08, $18, $28
+	db $00, $10, $36
+	db $0c, $1c, $2c
+
+
+.pit_mk1_palette:
+	db $18, $28, $38
+	db $0c, $1c, $2c
+	db $00, $10, $20
+
+
+.goro_lair_palette:
+	db $06, $16, $26
+	db $10, $10, $30		; dupe
+	db $00, $10, $20
+
+
+.deadpool_palette:
+	db $18, $38, $27
+	db $18, $09, $27
+	db $18, $0a, $2d
+
+
+.armory_palette:
+	db $0c, $16, $2d
+	db $0c, $00, $2d
+	db $06, $16, $26
+
+
+.wasteland_palette:
+	db $0c, $06, $00
+	db $00, $10, $09
+	db $0c, $10, $00
+
+
+.unused_palette:
+	db $0b, $18, $06
+	db $18, $28, $06
+	db $00, $10, $06
+
+
+
+
+.hud_palette:
+	db $0e, $16, $2a, $38
+
+
+
+
+.palette_copy:
+	inx
+
+	lda.b ($12),y
+	sta.w $640,x
+	iny : inx
+
+	lda.b ($12),y
+	sta.w $640,x
+	iny : inx
+
+	lda.b ($12),y
+	sta.w $640,x
+	iny : inx
+
+	rts
+
+
+
+
+.palette_ptr:
+	dw .kahn_throne_palette
+	dw .living_forest_palette
+	dw .kombat_tomb_palette
+	dw .pit_mk2_palette
+	dw .portal_palette
+	dw .tower_palette
+	dw .armory_palette
+	dw .pit_mk1_palette
+	dw .deadpool_palette
+	dw .goro_lair_palette
+	dw .wasteland_palette
+	dw 0
+
+
+
+warnpc $ce7f
+
+
+
+; ###############################################
+
+
+
+%orga($6c000) : .living_forest_chr1b:
+%orga($6d000) ;;; unused bank
+%orga($6e000) : .living_forest_chr1: : .living_forest_chr1a:
+%orga($6f000) : .living_forest_chr2:
+%orga($6fc00) : .living_forest_chr2a:
+%orga($7c000) : .portal_chr2b: incbin "portal - chr2b.bin"
+%orga($7c400) : .portal_chr2c: incbin "portal - chr2c.bin"
+%orga($7c800) : .living_forest_chr2b: incbin "living forest - chr2b.bin"
+%orga($7cc00) : .living_forest_chr2c: incbin "living forest - chr2c.bin"
+%orga($7d000) ;;; unused bank
+%orga($7e000) ;;; unused bank
+%orga($7f000) : .portal_chr3:
+%orga($80000) : .kahn_throne_chr1:
+%orga($81000) : .kahn_throne_chr2:
+%orga($82000) : .living_forest_chr1c:
+%orga($83000) ;;; unused bank
+%orga($84000) : .kombat_tomb_chr1:
+%orga($85000) : .kombat_tomb_chr2:
+%orga($86000) : .pit_mk2_chr1:
+%orga($87000) : .pit_mk2_chr2:
+%orga($88000) : .portal_chr1:
+%orga($88800) : .portal_chr1a:
+%orga($89000) : .portal_chr2:
+%orga($89c00) : .portal_chr2a:
+%orga($8a000) : .portal_chr1b: incbin "portal - chr1b.bin"
+%orga($8a800) : .portal_chr1c: incbin "portal - chr1c.bin"
+%orga($8b000) : .deadpool_chr: incbin "dead pool.chr"
+%orga($8c000) : .tower_chr1:
+%orga($8d000) : .tower_chr2:
+%orga($8f000) : .tower_chr3:
+%orga($90000) : .goro_lair_chr:
+%orga($91000) : .pit_mk1_chr:
+%orga($92000) : .armory_chr: incbin "armory.chr"
+%orga($93000) : .wasteland_chr: incbin "wasteland.chr"
+
+
+
+; #################################################
+
+
+
+%org($00, $c098)
+	dw .kahn_throne_nt1-2, .kahn_throne_nt2-2
+	dw .living_forest_nt1-2, .living_forest_nt2-2
+	dw .kombat_tomb_nt1-2, .kombat_tomb_nt2-2
+	dw .pit_mk2_nt1-2, .pit_mk2_nt2-2
+	dw .portal_nt1-2, .portal_nt2-2
+	dw .tower_nt1-2, .tower_nt2-2
+	dw .armory_nt1-2, .armory_nt2-2
+	dw .pit_mk1_nt1-2, .pit_mk1_nt2-2
+	dw .dead_pool_nt1-2, .dead_pool_nt2-2
+	dw .goro_lair_nt1-2, .goro_lair_nt2-2
+	dw .wasteland_nt1-2, .wasteland_nt2-2
+	dw 0, 0
+
+
+
+.kahn_throne_nt1: incbin "kahn throne - nt1.rep"
+.kahn_throne_nt2: incbin "kahn throne - nt2.rep"
+
+.living_forest_nt1: incbin "living forest - nt1.rep"
+.living_forest_nt2: incbin "living forest - nt2.rep"
+
+.kombat_tomb_nt1: incbin "kombat tomb - nt1.rep"
+.kombat_tomb_nt2: incbin "kombat tomb - nt2.rep"
+
+.pit_mk2_nt1: incbin "pit mk2 - nt1.rep"
+.pit_mk2_nt2: incbin "pit mk2 - nt2.rep"
+
+.portal_nt1: incbin "portal - nt1.rep"
+.portal_nt2: incbin "portal - nt2.rep"
+
+.tower_nt1: incbin "tower - nt1.rep"
+.tower_nt2: incbin "tower - nt2.rep"
+
+.armory_nt1: incbin "armory - nt1.rep"
+.armory_nt2: incbin "armory - nt2.rep"
+
+.pit_mk1_nt1: incbin "pit mk1 - nt1.rep"
+.pit_mk1_nt2: incbin "pit mk1 - nt2.rep"
+
+.dead_pool_nt1: incbin "dead pool - nt1.rep"
+.dead_pool_nt2: incbin "dead pool - nt2.rep"
+
+.goro_lair_nt1: incbin "goro lair - nt1.rep"
+.goro_lair_nt2: incbin "goro lair - nt2.rep"
+
+.wasteland_nt1:
+.wasteland_nt2: incbin "wasteland - nt1.rep"	; left = right
+
+
+; old f000 = leftover ? debug ?
+
+
+warnpc $10000
+
+
+
+; #####################################################
+
+
+
+; x-scroll limit
+
+%org($07, $ca4a)
+	db $62		; Kahn Throne
+	db $62		; Living Forest
+	db $62		; Kombat Tomb
+	db $62		; Pit II
+	db $62		; Portal
+	db $62		; Tower
+	db $ff		; Armory
+	db $62		; Pit I
+	db $ff		; Dead Pool
+	db $62		; Goro Lair
+	db $ff		; Wasteland
+	db $62		; Unused
+
+
+
+
+%org($07, $c90c)
+	lda.w .palette_ptr,y
+	sta.b $12
+
+	lda.w .palette_ptr+1,y
+	sta.b $13
+
+
+	ldy.b #$00
+	ldx.b #$04
+	jsr .palette_bg_copy
+
+
+
+	ldx.b #$10		; player palette 1
+	lda.b $b4
+	jsr $c944
+
+	
+	lda.b $b5		; same fighter
+	cmp.b $b4
+	bne +
+
+	clc				; alternate color
+	adc.b #$10
+	and.b #$1f
+
++:
+	ldx.b #$18		; player palette 2
+	jsr $c944
+
+
+
+	ldy.b #$03
+
+-:
+	lda.w .hud_palette,y
+	sta.w $640,y
+
+	dey
+	bpl -
+
+	sta.w $650		; fade black
+	rts
+
+warnpc $c944
+
+
+
+
+; c95e = old black color table
+
+%org($07, $c95e)
+
+.palette_bg_copy:
+	jsr .palette_copy
+	jsr .palette_copy
+	jmp .palette_copy
+
+warnpc $c968

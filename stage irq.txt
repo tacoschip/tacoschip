@@ -1,0 +1,523 @@
+%org($07, $c0ce)
+	lda.b #48-4		; hud line irq
+	nop
+
+
+
+
+%org($07, $e335)
+	dw .stage_irq_main
+	dw .stage_irq_main
+	dw .stage_irq_main
+	dw .stage_irq_main
+	dw .stage_irq_main
+	dw .stage_irq_main
+	dw .stage_irq_main
+	dw .stage_irq_main
+	dw .stage_irq_main
+	dw .stage_irq_main
+	dw .stage_irq_main
+	dw .stage_irq_main
+
+; 0c-13 = menu handlers
+
+
+
+; ###########################################
+
+
+
+%org($07, $e898)
+
+.stage_irq_main:
+	sta.w $c002			; clear irq
+	sta.w $c003
+
+
+	ldx.w $435			; irq counter 1+
+	beq +
+
+	lda.w $410			; stage handler
+	asl : tay
+	lda .stage_irq_1_table+1,y : pha
+	lda .stage_irq_1_table,y : pha
+	rts
+
+
+
++:
+	inc.w $435			; next irq counter
+
+	lda.b #$00			; next scanline
+	sta.w $c005
+
+	pla : pla
+	pla : tay
+	pla : tax
+	cli
+
+	lda.b #$05			; sync delay = reduce irq wobble
+	sec
+-:
+	sbc.b #$01 : bne -
+
+	pla : plp
+	rti
+
+
+
+
+.stage_irq_1_table:
+	dw .kahn_throne_irq-1
+	dw .living_forest_irq-1
+	dw .kombat_tomb_irq-1
+	dw .pit_mk2_irq-1
+	dw .portal_irq-1
+	dw .tower_irq-1
+	dw .armory_irq-1
+	dw .pit_mk1_irq-1
+	dw .deadpool_irq-1
+	dw .goro_lair_irq-1
+	dw .wasteland_irq-1
+	dw .dummy_irq-1
+
+
+
+; ##################################################
+
+
+
+.pit_mk2_irq:
+	dex : bne .pit_mk2_irq2
+	jsr .stage_chr1_write
+
+	lda.b $8e : lsr
+	sta.w $41f
+
+	lsr : clc : adc.w $41f
+	bit.w $2002
+	sta.w $2005
+
+	rts
+
+
+
+
+.pit_mk2_irq2:
+	dex : bne .pit_mk2_bridge
+
+	jmp .stage_chr2_write
+
+
+
+
+.pit_mk2_bridge:
+	lda.b #$00
+	sta.w $435
+
+	lda.b $8e
+	bit.w $2002
+	sta.w $2005
+
+	rts
+
+
+
+; ##################################################
+
+
+
+.pit_mk1_irq:
+	dex : bne .pit_mk1_cloud2
+	jsr .stage_chr1_write
+
+
+
+
+.pit_mk1_cloud1:
+	lda.b $25			; frame #
+	and.b #$07 : bne +
+
+	inc.w $445
+	
++:
+	lda.w $445			; cloud scroll 1
+	clc : adc.b $8e
+	bit.w $2002
+	sta.w $2005
+
+	lda.b #76-48		; next irq
+	sta.w $c005
+	rts
+
+
+
+
+.pit_mk1_cloud2:
+	dex : bne .pit_mk1_horizon
+	inc.w $435
+
+
+	lda.b $25			; frame #
+	and.b #$03 : bne +
+
+	inc.w $41f
+
++:
+	lda.w $41f			; cloud scroll 2
+	clc : adc.b $8e
+	bit.w $2002
+	sta.w $2005
+
+	lda.b #98-77		; next irq
+	sta.w $c005
+
+	rts
+
+
+
+
+.pit_mk1_horizon:
+	lda.b #$00
+	sta.w $435
+
+	lda.b $8e
+	bit.w $2002
+	sta.w $2005
+
+	rts
+
+
+
+; ##################################################
+
+
+
+.portal_irq:
+	dex : bne .portal_irq2
+	jsr .stage_chr1_write
+
+
+	lda.b $25
+	and.b #$07 : bne +++
+
+	lda.w $445			; animation counter
+	cmp.b #$02 : bcc +
+
+	lda.b #$ff
+	sta.w $445
+
++:
+	inc.w $445
+
++++:
+	ldy.w $445
+	lda .portal_chr1_bank,y : tay
+
+	jmp .stage_chr0b_write
+
+
+
+
+.portal_irq2:
+	dex : bne .portal_irq3
+
+
+	inc.w $435
+
+
+	ldy.w $410			; next irq
+	lda .stage_irq2_line,y
+	sta.w $c005
+
+
+	lda.w .stage_chr2_bank,y : tax		; upper banks
+
+	ldy.w $445
+	lda.w .portal_chr2_bank,y : tay		; lower banks
+
+
+	; note: avoid swap when rendering animated tiles
+	stx.w $9000 : inx
+	stx.w $9001 : inx
+	stx.w $9002
+	sty.w $9003
+
+	rts
+
+
+
+
+.portal_irq3:
+	ldy.b #chrbank(.portal_chr3)
+	jmp .stage_chr3_done
+
+
+
+
+.portal_chr1_bank:
+	db chrbank(.portal_chr1a)
+	db chrbank(.portal_chr1b)
+	db chrbank(.portal_chr1c)
+
+
+.portal_chr2_bank:
+	db chrbank(.portal_chr2a)
+	db chrbank(.portal_chr2b)
+	db chrbank(.portal_chr2c)
+
+
+
+; ##################################################
+
+
+
+.tower_irq:
+	dex : bne .tower_irq2
+	jmp .stage_chr1_write
+
+
+
+.tower_irq2:
+	dex : bne .tower_irq3
+	jmp .stage_chr2_write
+
+
+
+.tower_irq3:
+	ldy.b #chrbank(.tower_chr3)
+
+
+	; intentional fall-through
+
+
+
+.stage_chr3_done:
+	lda.b #$00
+	sta.w $435
+
+	jmp .stage_chr0_write
+
+
+
+; ##################################################
+
+
+
+.living_forest_irq:
+	dex : bne .living_forest_irq2
+	jsr .stage_chr1_write
+
+
+	lda.b $25
+	and.b #$70
+	lsr #4 : tay
+	sty.w $445
+
+	lda .living_forest_chr1_bank,y : tay
+	jmp .stage_chr0_write
+
+
+
+
+.living_forest_irq2:
+	ldy.w $410
+	lda.w .stage_chr2_bank,y : tax				; upper banks
+
+	ldy.w $445
+	lda.w .living_forest_chr2_bank,y : tay		; lower banks
+
+
+	; note: avoid swap when rendering animated tiles
+	stx.w $9000 : inx
+	stx.w $9001 : inx
+	stx.w $9002
+	sty.w $9003
+
+
+	lda.b #$00			; chr done
+	sta.w $435
+
+	rts
+
+
+
+
+.living_forest_chr1_bank:
+	db chrbank(.living_forest_chr1a)
+	db chrbank(.living_forest_chr1a)
+	db chrbank(.living_forest_chr1b)
+	db chrbank(.living_forest_chr1c)
+	db chrbank(.living_forest_chr1b)
+	db chrbank(.living_forest_chr1c)
+	db chrbank(.living_forest_chr1b)
+	db chrbank(.living_forest_chr1c)
+
+
+
+.living_forest_chr2_bank:
+	db chrbank(.living_forest_chr2a)
+	db chrbank(.living_forest_chr2a)
+	db chrbank(.living_forest_chr2b)
+	db chrbank(.living_forest_chr2c)
+	db chrbank(.living_forest_chr2b)
+	db chrbank(.living_forest_chr2c)
+	db chrbank(.living_forest_chr2b)
+	db chrbank(.living_forest_chr2c)
+
+
+
+; ##################################################
+
+
+
+.kahn_throne_irq:
+.kombat_tomb_irq:
+
+
+
+.stage_chr2_irq:
+	dex : bne .stage_chr2_done
+	jmp .stage_chr1_write
+
+
+
+.stage_chr2_done:
+	lda.b #$ff			; chr done
+	sta.w $435
+
+
+
+.stage_chr2_write:
+	inc.w $435
+
+
+	ldy.w $410			; next irq
+	lda .stage_irq2_line,y
+	sta.w $c005
+
+
+	lda.w .stage_chr2_bank,y : tay
+	jmp .stage_chr0_write
+
+
+
+; ##################################################
+
+
+
+.goro_lair_irq:
+.deadpool_irq:
+.wasteland_irq:
+.armory_irq:
+.dummy_irq:
+
+
+
+.stage_chr1_done:
+	lda.b #$ff			; reset irq counter
+	sta.w $435
+
+	; intentional fall-through
+
+
+
+.stage_chr1_write:
+	inc.w $435
+
+
+	ldy.w $410			; next irq
+	lda .stage_irq1_line,y
+	sta.w $c005
+
+
+	lda.w .stage_chr1_bank,y : tay
+
+
+	lda.b $8e			; ppu scroll
+	bit.w $2002			; reset ppu latch
+	sta.w $2005
+
+
+
+.stage_chr0_write:
+	sty $9000 : iny
+	sty $9001 : iny
+
+
+.stage_chr0b_write:
+	sty $9002 : iny
+	sty $9003
+
+	rts
+
+
+
+; ##################################################
+
+
+
+.stage_chr1_bank:
+	db chrbank(.kahn_throne_chr1)
+	db chrbank(.living_forest_chr1)
+	db chrbank(.kombat_tomb_chr1)
+	db chrbank(.pit_mk2_chr1)
+	db chrbank(.portal_chr1)
+	db chrbank(.tower_chr1)
+	db chrbank(.armory_chr)
+	db chrbank(.pit_mk1_chr)
+	db chrbank(.deadpool_chr)
+	db chrbank(.goro_lair_chr)
+	db chrbank(.wasteland_chr)
+	db $00
+
+
+
+.stage_chr2_bank:
+	db chrbank(.kahn_throne_chr2)
+	db chrbank(.living_forest_chr2)
+	db chrbank(.kombat_tomb_chr2)
+	db chrbank(.pit_mk2_chr2)
+	db chrbank(.portal_chr2)
+	db chrbank(.tower_chr2)
+	db $00
+	db $00
+	db $00
+	db $00
+	db $00
+	db $00
+
+
+
+.stage_irq1_line:
+	db #134-48		; Kahn Throne-2
+	db #134-48		; Living Forest-2
+	db #154-48		; Kombat Tomb-2
+	db #140-48		; Pit MK2-2
+	db #154-48		; Portal-2
+	db #106-48		; Tower-2
+	db #255			; Armory
+	db #76-48		; Pit MK1
+	db #255			; Dead Pool
+	db #255			; Goro Lair
+	db #255			; Wasteland
+	db #255			; Unused
+
+
+
+.stage_irq2_line:
+	db #255			; Kahn Throne
+	db #255			; Living Forest
+	db #255			; Kombat Tomb
+	db #176-140		; Pit MK2
+	db #202-154		; Portal-3
+	db #162-106		; Tower-3
+	db #255			; Armory
+	db #255			; Pit MK1
+	db #255			; Dead Pool
+	db #255			; Goro Lair
+	db #255			; Wasteland
+	db #255			; Unused
+
+
+warnpc $ed39
