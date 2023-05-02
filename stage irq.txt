@@ -92,9 +92,10 @@
 	jsr .stage_chr1_write
 
 	lda.b $8e : lsr
-	sta.w $41f
+	sta.w $41f : lsr
+	clc : adc.w $41f
+	clc : adc.b #$0d
 
-	lsr : clc : adc.w $41f
 	bit.w $2002
 	sta.w $2005
 
