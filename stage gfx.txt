@@ -141,7 +141,7 @@ warnpc $ce7f
 %orga($80000) : .kahn_throne_chr1:
 %orga($81000) : .kahn_throne_chr2:
 %orga($82000) : .living_forest_chr1c:
-%orga($83000) ;;; unused bank
+%orga($83000) : .deadpool_chr: incbin "dead pool.chr"
 %orga($84000) : .kombat_tomb_chr1:
 %orga($85000) : .kombat_tomb_chr2:
 %orga($86000) : .pit_mk2_chr1:
@@ -152,7 +152,7 @@ warnpc $ce7f
 %orga($89c00) : .portal_chr2a:
 %orga($8a000) : .portal_chr1b: incbin "portal - chr1b.bin"
 %orga($8a800) : .portal_chr1c: incbin "portal - chr1c.bin"
-%orga($8b000) : .deadpool_chr: incbin "dead pool.chr"
+%orga($8b000) : .hummer_logo_chr:
 %orga($8c000) : .tower_chr1:
 %orga($8d000) : .tower_chr2:
 %orga($8f000) : .tower_chr3:
